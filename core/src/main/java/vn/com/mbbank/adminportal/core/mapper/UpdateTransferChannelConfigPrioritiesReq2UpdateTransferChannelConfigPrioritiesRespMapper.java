@@ -1,0 +1,17 @@
+package vn.com.mbbank.adminportal.core.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
+import vn.com.mbbank.adminportal.common.mapper.BeanMapper;
+import vn.com.mbbank.adminportal.core.model.request.UpdateTransferChannelConfigPrioritiesRequest;
+import vn.com.mbbank.adminportal.core.model.response.UpdateTransferChannelConfigPrioritiesResponse;
+
+import java.time.OffsetDateTime;
+
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UpdateTransferChannelConfigPrioritiesReq2UpdateTransferChannelConfigPrioritiesRespMapper extends BeanMapper<UpdateTransferChannelConfigPrioritiesRequest, UpdateTransferChannelConfigPrioritiesResponse> {
+  UpdateTransferChannelConfigPrioritiesReq2UpdateTransferChannelConfigPrioritiesRespMapper INSTANCE = Mappers.getMapper(UpdateTransferChannelConfigPrioritiesReq2UpdateTransferChannelConfigPrioritiesRespMapper.class);
+
+  UpdateTransferChannelConfigPrioritiesResponse map(UpdateTransferChannelConfigPrioritiesRequest source, String updatedBy, OffsetDateTime updatedAt);
+}

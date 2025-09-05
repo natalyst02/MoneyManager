@@ -1,0 +1,133 @@
+logging.level.vn.com.mbbank.adminportal.common.util.RequestLoggingFilter: DEBUG
+#logging.level.org.hibernate.orm.jdbc.bind: TRACE
+#logging.level.org.hibernate.stat: DEBUG
+#logging.level.org.hibernate.SQL: DEBUG
+logging:
+  config: config/log4j2.xml
+server:
+  port: 8888
+  max-http-request-header-size: 90000
+  servlet:
+    context-path: /admin-portal/v1
+  error:
+    include-binding-errors: always
+    include-message: always
+management:
+  security:
+    enabled: false
+management.endpoints.web.exposure.include: "health,info,prometheus"
+management.endpoint.health.show-details: always
+management.endpoint.health.probes.enabled: true
+
+springdoc:
+  server-url: http://10.1.27.43:9399/admin-portal/v1
+  swagger-ui:
+    oauth:
+      client-id: pap_user
+      client-secret: hDCuMCx262aaihgKCK24qdsUDN1q8vOm
+
+spring:
+  application:
+    name: admin-portal
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        generate_statistics: true
+        query.in_clause_parameter_padding: true
+    database-platform: org.hibernate.dialect.OracleDialect
+  datasource:
+    url: jdbc:oracle:thin:@10.215.102.44:1521/paymenthub?oracle.jdbc.implicitStatementCacheSize=100
+    username: admin_portal_test
+    password: ENC(4D/DCmH856jg3dLFcVqXkDy6LL014qmbmK9BwZAtkGd2u5yTzO9o+Ek+fHS4OyLl)
+    hikari:
+      minimumIdle: 2
+      maximumPoolSize: 128
+      idleTimeout: 120000
+      connectionTimeout: 300000
+      leakDetectionThreshold: 300000
+  mvc:
+    async:
+      request-timeout: 120000
+redis:
+  cluster:
+    host: 10.1.33.131:3000,10.1.33.131:3001,10.1.33.132:3000,10.1.33.132:3001,10.1.33.133:3000,10.1.33.133:3001
+    maxTotal: 10000
+    maxIdle: 5
+    timeout: 5000
+    soTimeOut: 5000
+    maxAttempts: 5
+    username: smartchannel
+    password: TEaY8jG2HfvtReSB
+  keys:
+    all-permissions: dev.pap-all-permissions
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+    instances:
+      assignRoleToUser:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.KeycloakInternalRecordFailurePredicate
+      revokeRoleFromUser:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.KeycloakInternalRecordFailurePredicate
+      getKeycloakUserInfo:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.KeycloakInternalRecordFailurePredicate
+      validateToken:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.KeycloakInternalRecordFailurePredicate
+      getHcmUserInfo:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.HcmRecordFailurePredicate
+      sendOtp:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.OtpRecordFailurePredicate
+      verifyOtp:
+        baseConfig: default
+        recordFailurePredicate: vn.com.mbbank.adminportal.core.util.predicate.OtpRecordFailurePredicate
+rate-limit:
+  otp:
+    verify-limit: 3
+    verify-time-seconds: 60
+oauth2:
+  url: http://10.1.27.43:8831/auth/realms/ms-core/protocol/openid-connect/token
+  internal-url: https://keycloak-internal-uat.mbbank.com.vn/auth/realms/internal/protocol/openid-connect/token
+authentication.keycloak.jwks-url: https://keycloak-internal-uat.mbbank.com.vn/auth/realms/internal/protocol/openid-connect/certs
+keycloak:
+  internal:
+    url: https://keycloak-internal-uat.mbbank.com.vn/auth
+    client-id: pap-service
+    client-secret: onK7PMkr2mvD2xf8pt74EJ7NtfI1Fe3K
+    client-service-id: dc8fec67-0803-4057-a6d0-59af194098c7
+    default-role-id: 4aaed715-f0f3-4898-b07d-a66061c94f07
+
+hcm:
+  url: https://hcm-uat.mbbank.com.vn/api
+  client-id: partner1
+  client-secret: 1hD8W74SxYuvtyA4DFlETbSYlnsuMuab
+  oauth2-url:
+otp:
+  url: http://10.1.27.129:14009/two-factor-authen/v1.0/two-factor-authen
+  client-id: pap_user
+  client-secret: hDCuMCx262aaihgKCK24qdsUDN1q8vOm
+  oauth2-url:
+
+ach-transfer:
+  url: http://10.1.27.43:9399/ach-transfer/v1
+  proxy-source-prefix: /ach
+  client-id: pap_user
+  client-secret: hDCuMCx262aaihgKCK24qdsUDN1q8vOm
+  oauth2-url:
