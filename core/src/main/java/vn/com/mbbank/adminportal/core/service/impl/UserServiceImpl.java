@@ -310,7 +310,7 @@ public class UserServiceImpl implements UserServiceInternal {
             loginRequest.getUsername(),
             jwtUtil.getExpirationTime(token)
     );
-
+//      redisClusterAdapter.set("4324", 300, true);
     return response;
 
   }
