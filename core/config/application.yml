@@ -42,7 +42,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@database-2.cj8o2sc24qmm.ap-southeast-2.rds.amazonaws.com:1521:ORCL?oracle.jdbc.implicitStatementCacheSize=100
     username: admin
-    password: ChatDST092025
+    password: ENC(nJ9wWqJfnYC03PwSTu2xPaAKKiOpfD73)
     hikari:
       minimumIdle: 2
       maximumPoolSize: 128
@@ -103,7 +103,7 @@ redis:
     soTimeOut: 5000
     maxAttempts: 5
     username: chatdst
-    password: Timetoshine!2302
+    password: ENC(HNISvg4pj/w8GpFXZvRzEghvb1/so4g6AU+IPz4Ktm0=)
   keys:
     all-permissions: dev.pap-all-permissions
 resilience4j:
@@ -232,3 +232,8 @@ blacklist-account:
 jwt:
   secret: 5G5A2zibrWwmY4xd83RSRYNY9Wcnj60ZAbCdEfGhIjKlMnOpQrStUvWxYz123456
   expiration: 86400000
+jasypt:
+  encryptor:
+    password: MySecretKey
+    algorithm: PBEWithMD5AndDES   # mặc định, nên để rõ
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
