@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -46,6 +48,7 @@ import vn.com.mbbank.adminportal.core.util.Constant;
 import vn.com.mbbank.adminportal.core.util.ErrorCode;
 import vn.com.mbbank.adminportal.common.util.JwtUtil;
 
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +68,8 @@ public class UserServiceImpl implements UserServiceInternal {
   private final RedisClusterAdapter redisClusterAdapter;
 
   private final JwtUtil jwtUtil;
+
+  private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   public UserServiceImpl(UserRepository userRepository,
                          @Value("${keycloak.internal.client-service-id}") String clientServiceId,
@@ -171,51 +176,58 @@ public class UserServiceImpl implements UserServiceInternal {
   }
 
   @Transactional
-  public CompletableFuture<UserResponse> create(Authentication authentication, CreateUserRequest request) {
+  public CompletableFuture<UserResponse> create(CreateUserRequest request) {
     if (!CollectionUtils.isEmpty(request.getRoleIds())) {
-      if (!permissionEvaluator.hasPermission(authentication, "role", BitmaskValue.ASSIGN)) {
-        throw new PaymentPlatformException(CommonErrorCode.FORBIDDEN, "You don't have permission to assign role");
-      }
+//      if (!permissionEvaluator.hasPermission(authentication, "role", BitmaskValue.ASSIGN)) {
+//        throw new PaymentPlatformException(CommonErrorCode.FORBIDDEN, "You don't have permission to assign role");
+//      }
       roleService.validateRoleByIds(request.getRoleIds());
     }
-    var createdBy = Authentications.requireUsername(authentication);
+    var createdBy = "system";
     var createdAt = OffsetDateTime.now();
     var user = CreateUserRequest2UserMapper.INSTANCE.map(request)
         .setCreatedBy(createdBy)
         .setCreatedAt(createdAt)
         .setUpdatedBy(createdBy)
-        .setUpdatedAt(createdAt);
+        .setUpdatedAt(createdAt)
+            .setPassword(encodePassword(generateSecurePassword(32), request.getUsername()));
 
-    CompletableFuture<GetHcmUserInfoResponse> hcmUserFuture = hcmClient.getUser(user.getUsername());
-    CompletableFuture<List<GetUserInfoResponse>> keycloakUserFuture = keycloakInternalClient.getUserInfo(user.getUsername());
+//      user.setKeycloakId(keycloakUser.getId())
+//          .setEmail(getUserInfoHcmResponse.getEmail())
+//          .setFullName(getUserInfoHcmResponse.getFullName())
+//          .setEmployeeCode(getUserInfoHcmResponse.getEmployeeCode())
+//          .setOrgName(getOrgName(getUserInfoHcmResponse))
+//          .setJobName(getUserInfoHcmResponse.getJobName())
+//          .setPhoneNumber(getUserInfoHcmResponse.getMobileNumber());
+       user = createUserAndUserRole(createdBy, user, request);
+       return CompletableFuture.completedFuture(new UserResponse());
 
-    return hcmUserFuture.thenCombine(keycloakUserFuture, (getUserInfoHcmResponse, userInfoResponseList) -> {
-      GetUserInfoResponse keycloakUser = userInfoResponseList.stream()
-          .filter(userInfo -> userInfo.isEnabled() && userInfo.getUsername().equals(user.getUsername()))
-          .findFirst()
-          .orElseThrow(() -> new NSTCompletionException(new PaymentPlatformException(
-              ErrorCode.GET_KEYCLOAK_USER_BUT_NOT_FOUND_ACTIVE,
-              "Keycloak user " + user.getUsername() + " not found"
-          )));
-      user.setKeycloakId(keycloakUser.getId())
-          .setEmail(getUserInfoHcmResponse.getEmail())
-          .setFullName(getUserInfoHcmResponse.getFullName())
-          .setEmployeeCode(getUserInfoHcmResponse.getEmployeeCode())
-          .setOrgName(getOrgName(getUserInfoHcmResponse))
-          .setJobName(getUserInfoHcmResponse.getJobName())
-          .setPhoneNumber(getUserInfoHcmResponse.getMobileNumber());
-      return createUserAndUserRole(createdBy, user, request);
-    }).thenCompose(persistedUser -> keycloakInternalClient.assignRoleToUser(assignRoleRequest, persistedUser.getKeycloakId())
-        .thenApply(v -> {
-          var roles = userRoleService.findRolesByUserId(persistedUser.getId());
-          return User2UserResponseMapper.INSTANCE.map(persistedUser, roles);
-        })
-        .exceptionally(t -> {
-          rollbackCreateUserAndUserRole(persistedUser.getId());
-          throw CompletableFutures.toCompletionException(t);
-        })).exceptionally(e -> {
-      throw CompletableFutures.toCompletionException(e);
-    });
+  }
+
+  public String encodePassword(String clientHashedPassword, String username) {
+    // Thêm username như một phần của salt để tăng bảo mật
+    String saltedPassword = clientHashedPassword + username;
+    log.info("saltedPassword: " + saltedPassword.toString());
+    return passwordEncoder.encode(saltedPassword);
+  }
+
+  private String generateSalt() {
+    SecureRandom random = new SecureRandom();
+    byte[] salt = new byte[16];
+    random.nextBytes(salt);
+    return Base64.getEncoder().encodeToString(salt);
+  }
+
+  public String generateSecurePassword(int length) {
+    String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    SecureRandom random = new SecureRandom();
+    StringBuilder password = new StringBuilder();
+
+    for (int i = 0; i < length; i++) {
+      password.append(chars.charAt(random.nextInt(chars.length())));
+    }
+    log.info("password: " + password.toString());
+    return password.toString();
   }
 
   private User createUserAndUserRole(String createdBy, User user, CreateUserRequest request) {
@@ -302,7 +314,7 @@ public class UserServiceImpl implements UserServiceInternal {
   public AuthResponse login(LoginRequest loginRequest) {
     User user =  userRepository.findByUsernameAndActive(loginRequest.getUsername(), true)
             .orElseThrow(() -> new PaymentPlatformException(ErrorCode.USERNAME_PASSWORD_INVALID, ErrorCode.USERNAME_PASSWORD_INVALID.message()));
-    if (!StringUtils.equals(user.getPassword(), loginRequest.getPassword())) {
+    if (!passwordEncoder.matches(loginRequest.getPassword() + loginRequest.getUsername(), user.getPassword())) {
       throw new PaymentPlatformException(ErrorCode.USERNAME_PASSWORD_INVALID, ErrorCode.USERNAME_PASSWORD_INVALID.message());
     }
     var userId = user.getId();

@@ -25,7 +25,7 @@ public interface UserService {
 
   CompletableFuture<GetHcmUserInfoResponse> getHcmUser(Authentication authentication, String userName);
 
-  CompletableFuture<UserResponse> create(Authentication authentication, CreateUserRequest request);
+  CompletableFuture<UserResponse> create(CreateUserRequest request);
 
   UserResponse getUser(Long id);
 

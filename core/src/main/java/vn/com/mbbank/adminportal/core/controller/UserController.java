@@ -52,7 +52,7 @@ public class UserController {
     @PreAuthorize("hasPermission('user', T(vn.com.mbbank.adminportal.core.model.BitmaskValue).INSERT)")
     @PostMapping
     public CompletableFuture<Response<UserResponse>> create(Authentication authentication, @Valid @RequestBody CreateUserRequest createUserRequest) {
-      return userService.create(authentication, createUserRequest).thenApply(Response::ofSucceeded);
+      return userService.create(createUserRequest).thenApply(Response::ofSucceeded);
     }
 
 

@@ -163,7 +163,7 @@ public class ExceptionController {
   }
 
   private void handle(Throwable t, BusinessErrorCode errorCode, HttpServletRequest request, HttpServletResponse response) throws IOException {
-    var errorResponse = Response.ofFailed(errorCode, t.getMessage());
+    var errorResponse = Response.ofFailed(errorCode, errorCode.message());
     writeResponse(request, response, errorResponse, t);
   }
 

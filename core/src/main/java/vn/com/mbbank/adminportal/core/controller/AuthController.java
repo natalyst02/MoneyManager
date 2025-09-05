@@ -8,9 +8,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vn.com.mbbank.adminportal.common.model.response.Response;
 import vn.com.mbbank.adminportal.core.model.request.CreateRoleRequest;
+import vn.com.mbbank.adminportal.core.model.request.CreateUserRequest;
 import vn.com.mbbank.adminportal.core.model.request.LoginRequest;
 import vn.com.mbbank.adminportal.core.model.response.AuthResponse;
 import vn.com.mbbank.adminportal.core.model.response.CreateRoleResponse;
+import vn.com.mbbank.adminportal.core.model.response.UserResponse;
 import vn.com.mbbank.adminportal.core.service.UserService;
 
 @RestController
@@ -23,6 +25,11 @@ public class AuthController {
     @PostMapping
     public Response<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
         return Response.ofSucceeded(userService.login(loginRequest));
+    }
+
+    @PostMapping("/create")
+    public Response<UserResponse> create(@Valid @RequestBody CreateUserRequest createUserRequest) {
+        return userService.create( createUserRequest).thenApply(Response::ofSucceeded).join();
     }
 
     @GetMapping
