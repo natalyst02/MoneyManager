@@ -1,4 +1,4 @@
-package vn.com.mbbank.adminportal.core.util;
+package vn.com.mbbank.adminportal.common.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import vn.com.mbbank.adminportal.common.model.PapUser;
 
 import java.security.Key;
 import java.util.Date;
@@ -29,9 +30,10 @@ public class JwtUtil {
     }
 
     // Tạo JWT token
-    public String generateToken(String username) {
+    public String generateToken(PapUser papUser) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        claims.put("permissions", papUser.getPermissions());
+        return createToken(claims, papUser.getUsername());
     }
 
     // Tạo JWT token với custom claims
@@ -99,9 +101,9 @@ public class JwtUtil {
     }
 
     // Validate token chỉ với username
-    public Boolean validateToken(String token, String username) {
+    public Boolean validateToken(String token) {
         final String tokenUsername = extractUsername(token);
-        return (tokenUsername.equals(username) && !isTokenExpired(token));
+        return (!isTokenExpired(token));
     }
 
     // Refresh token (tạo token mới với cùng claims)

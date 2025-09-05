@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import vn.com.mbbank.adminportal.common.config.RedisClusterAdapter;
 import vn.com.mbbank.adminportal.common.exception.NSTCompletionException;
 import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
+import vn.com.mbbank.adminportal.common.model.PapUser;
 import vn.com.mbbank.adminportal.common.util.CommonErrorCode;
 import vn.com.mbbank.adminportal.common.util.CompletableFutures;
 import vn.com.mbbank.adminportal.core.mapper.CreateUserRequest2UserMapper;
@@ -43,7 +44,7 @@ import vn.com.mbbank.adminportal.core.thirdparty.keycloak.model.response.GetUser
 import vn.com.mbbank.adminportal.core.util.Authentications;
 import vn.com.mbbank.adminportal.core.util.Constant;
 import vn.com.mbbank.adminportal.core.util.ErrorCode;
-import vn.com.mbbank.adminportal.core.util.JwtUtil;
+import vn.com.mbbank.adminportal.common.util.JwtUtil;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -304,13 +305,28 @@ public class UserServiceImpl implements UserServiceInternal {
     if (!StringUtils.equals(user.getPassword(), loginRequest.getPassword())) {
       throw new PaymentPlatformException(ErrorCode.USERNAME_PASSWORD_INVALID, ErrorCode.USERNAME_PASSWORD_INVALID.message());
     }
-    String token = jwtUtil.generateToken(loginRequest.getUsername());
+    var userId = user.getId();
+    var rolePermissions = roleService.getRolesPermissionsByActiveRole(userId);
+    var roleIds = new ArrayList<Long>();
+    var userPermission = new HashMap<String, Integer>();
+    for (var rolePermission : rolePermissions) {
+      roleIds.add(rolePermission.getRoleId());
+      var permissions = rolePermission.getPermissions();
+      permissions.keySet().forEach(key -> userPermission.merge(key, permissions.get(key), (oldBitmask, newBitmask) -> oldBitmask | newBitmask));
+    }
+    PapUser papUser = new PapUser().setUserId(userId)
+            .setUsername(user.getUsername())
+            .setPermissions(userPermission)
+            .setRoleIds(roleIds);
+    String token = jwtUtil.generateToken(papUser);
     AuthResponse response = new AuthResponse(
             token,
             loginRequest.getUsername(),
             jwtUtil.getExpirationTime(token)
     );
-//      redisClusterAdapter.set("4324", 300, true);
+
+    redisClusterAdapter.set(Constant.PAP_USER_KEY + user.getUsername(), response.getExpiresIn(), papUser);
+
     return response;
 
   }

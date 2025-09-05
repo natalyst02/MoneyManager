@@ -2,12 +2,10 @@ package vn.com.mbbank.adminportal.core.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.com.mbbank.adminportal.common.model.response.Response;
 import vn.com.mbbank.adminportal.core.model.request.CreateRoleRequest;
 import vn.com.mbbank.adminportal.core.model.request.LoginRequest;
@@ -25,5 +23,11 @@ public class AuthController {
     @PostMapping
     public Response<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
         return Response.ofSucceeded(userService.login(loginRequest));
+    }
+
+    @GetMapping
+    @PreAuthorize("hasPermission('user', T(vn.com.mbbank.adminportal.core.model.BitmaskValue).VIEW)")
+    public Response<String> test() {
+        return Response.ofSucceeded("hello");
     }
 }

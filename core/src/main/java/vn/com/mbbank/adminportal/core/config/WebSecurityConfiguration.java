@@ -15,17 +15,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import vn.com.mbbank.adminportal.common.config.RedisClusterAdapter;
 import vn.com.mbbank.adminportal.common.controller.ExceptionController;
 import vn.com.mbbank.adminportal.common.security.JwtAuthenticationFilter;
-import vn.com.mbbank.adminportal.common.security.KeycloakJwtAuthenticator;
 import vn.com.mbbank.adminportal.common.thirdparty.keycloak.KeycloakClient;
 import vn.com.mbbank.adminportal.common.thirdparty.keycloak.impl.KeycloakClientImpl;
+import vn.com.mbbank.adminportal.common.util.JwtUtil;
 import vn.com.mbbank.adminportal.common.util.RequestLoggingFilter;
 import vn.com.mbbank.adminportal.common.util.RestClient;
 import vn.com.mbbank.adminportal.common.util.Tracing;
-import vn.com.mbbank.adminportal.core.security.PapUserAuthenticator;
+import vn.com.mbbank.adminportal.core.security.KeycloakJwtAuthenticator;
 import vn.com.mbbank.adminportal.core.security.PermissionAuthorizationManager;
 import vn.com.mbbank.adminportal.core.service.internal.RoleServiceInternal;
 import vn.com.mbbank.adminportal.core.service.internal.UserServiceInternal;
-import vn.com.mbbank.adminportal.core.thirdparty.keycloak.KeycloakInternalClient;
 
 import java.util.List;
 
@@ -76,8 +75,8 @@ public class WebSecurityConfiguration {
   }
 
   @Bean
-  JwtAuthenticationFilter authenticationFilter(KeycloakClient keycloakClient) {
-    return new JwtAuthenticationFilter(new KeycloakJwtAuthenticator(keycloakClient));
+  JwtAuthenticationFilter authenticationFilter(JwtUtil jwtUtil, RedisClusterAdapter redisClusterAdapter, UserServiceInternal userService, RoleServiceInternal roleService) {
+    return new JwtAuthenticationFilter(new KeycloakJwtAuthenticator(jwtUtil,redisClusterAdapter, userService, roleService));
   }
 
   @Bean

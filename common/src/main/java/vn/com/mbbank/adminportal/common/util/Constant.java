@@ -11,6 +11,8 @@ public class Constant {
   public static final String TRANSACTION_ID = "transactionId";
   public static final long REDIS_DEFAULT_DURATION = 3600;
 
+  public static final String PAP_USER_KEY = "pap_user:";
+
   private Constant() {
     throw new UnsupportedOperationException();
   }
