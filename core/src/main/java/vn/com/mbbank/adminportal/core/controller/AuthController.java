@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @GetMapping
-    @PreAuthorize("hasPermission('user', T(vn.com.mbbank.adminportal.core.model.BitmaskValue).VIEW)")
+//    @PreAuthorize("hasPermission('user', T(vn.com.mbbank.adminportal.core.model.BitmaskValue).VIEW)")
     public Response<String> test() {
         return Response.ofSucceeded("hello");
     }

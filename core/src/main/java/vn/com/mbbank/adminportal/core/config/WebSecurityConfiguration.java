@@ -40,11 +40,6 @@ public class WebSecurityConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter authenticationFilter, RequestLoggingFilter requestLoggingFilter) throws Exception {
     permissionManager.configAdminPortalRequestMatcher(http);
-    permissionManager.configCitadTransferRequestMatcher(http);
-    permissionManager.configAchRequestMatcher(http);
-    permissionManager.configRoutingTransferRequestMatcher(http);
-    permissionManager.configWireTransferRequestMatcher(http);
-    permissionManager.configInhouseTransferRequestMatcher(http);
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
