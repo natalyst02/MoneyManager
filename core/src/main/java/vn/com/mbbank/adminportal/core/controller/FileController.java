@@ -21,8 +21,10 @@ import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
 import vn.com.mbbank.adminportal.common.model.response.Response;
 import vn.com.mbbank.adminportal.common.util.CommonErrorCode;
 import vn.com.mbbank.adminportal.core.model.entity.FileEntity;
+import vn.com.mbbank.adminportal.core.model.entity.FileLog;
 import vn.com.mbbank.adminportal.core.model.request.ShareFileRequest;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
+import vn.com.mbbank.adminportal.core.repository.FileLogRepository;
 import vn.com.mbbank.adminportal.core.service.FileService;
 import vn.com.mbbank.adminportal.core.service.FileUploadService;
 import vn.com.mbbank.adminportal.core.thirdparty.hcm.model.GetHcmUserInfoResponse;
@@ -31,6 +33,8 @@ import vn.com.mbbank.adminportal.core.util.Authentications;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -42,6 +46,7 @@ import java.util.concurrent.ExecutionException;
 public class FileController {
     private final FileService fileService;
     private final FileUploadService fileUploadService;
+    private final FileLogRepository fileLogRepository;
 
     @GetMapping("")
     public CompletableFuture<Response<FileResponse>> getFileByUser(Authentication authentication,
@@ -78,12 +83,23 @@ public class FileController {
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String id) {
         try {
+            var papUser = Authentications.requirePapUser();
             FileEntity fileInfo = fileService.getFile(id).get();
             if (fileInfo == null) {
-                var papUser = Authentications.requirePapUser();
                 fileInfo = fileService.getFile(id, papUser.getUsername()).get();
             }
+            if (fileInfo == null) {
+                FileLog fileLog = new FileLog(
+                        UUID.randomUUID().toString(),
+                        new Date(),
+                        papUser.getUsername(),
+                        "DOWNLOAD_FILE",
+                        id
+                );
 
+                fileLogRepository.save(fileLog);
+                throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Bạn không có quyền truy cập vào file", HttpStatus.INTERNAL_SERVER_ERROR), null);
+            }
             Path filePath = Paths.get(fileInfo.getFileUrl());
             org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
 

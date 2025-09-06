@@ -10,9 +10,11 @@ import vn.com.mbbank.adminportal.common.exception.BusinessErrorCode;
 import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
 import vn.com.mbbank.adminportal.common.util.CommonErrorCode;
 import vn.com.mbbank.adminportal.core.model.entity.FileEntity;
+import vn.com.mbbank.adminportal.core.model.entity.FileLog;
 import vn.com.mbbank.adminportal.core.model.entity.FileShareEntity;
 import vn.com.mbbank.adminportal.core.model.request.ShareFileRequest;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
+import vn.com.mbbank.adminportal.core.repository.FileLogRepository;
 import vn.com.mbbank.adminportal.core.repository.FileRepository;
 import vn.com.mbbank.adminportal.core.repository.FileShareRepository;
 import vn.com.mbbank.adminportal.core.service.FileService;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private final FileShareRepository fileShareRepository;
+    private final FileLogRepository fileLogRepository;
 
 
 
@@ -59,6 +62,15 @@ public class FileServiceImpl implements FileService {
 
         if (fileEntities == null ||
         fileEntities.size() != shareFileRequest.getFileIds().size()) {
+            FileLog fileLog = new FileLog(
+                    UUID.randomUUID().toString(),
+                    new Date(),
+                    papUser.getUsername(),
+                    "SHARE_FILE",
+                    shareFileRequest.getFileIds().toString()
+            );
+
+            fileLogRepository.save(fileLog);
             throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Bạn không có quyền truy cập vào file", HttpStatus.INTERNAL_SERVER_ERROR), null);
 
         }
@@ -93,6 +105,15 @@ public class FileServiceImpl implements FileService {
         var fileShare = fileShareRepository.findByUsernameAndFileId(userName, id);
 
         if (fileShare == null) {
+            FileLog fileLog = new FileLog(
+                    UUID.randomUUID().toString(),
+                    new Date(),
+                    userName,
+                    "DOWNLOAD_FILE",
+                    id
+            );
+
+            fileLogRepository.save(fileLog);
             throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Bạn không có quyền truy cập vào file", HttpStatus.INTERNAL_SERVER_ERROR), null);
         }
         return CompletableFuture.completedFuture(fileRepository.findById(id).get());
