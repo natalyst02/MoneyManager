@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 public class FileController {
     private final FileService fileService;
 
-    @PreAuthorize("hasPermission('user', T(vn.com.mbbank.adminportal.core.model.BitmaskValue).VIEW)")
     @GetMapping("")
     public CompletableFuture<Response<FileResponse>> getFileByUser(Authentication authentication,
                                                                    @RequestParam(required = false, defaultValue = "1") Integer page,
