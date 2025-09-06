@@ -115,7 +115,6 @@ public class ErrorCode implements CommonErrorCode {
 
   public static final BusinessErrorCode USERNAME_PASSWORD_INVALID =
           new BusinessErrorCode(4849, "Username or password invalid", HttpStatus.BAD_REQUEST);
-
   public static final BusinessErrorCode ASSIGN_ROLE_ERROR =
       new BusinessErrorCode(5800, "Assign Role to User error", HttpStatus.INTERNAL_SERVER_ERROR);
   public static final BusinessErrorCode ASSIGN_ROLE_TIMEOUT =

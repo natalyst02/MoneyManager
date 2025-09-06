@@ -237,3 +237,6 @@ jasypt:
     password: MySecretKey
     algorithm: PBEWithMD5AndDES   # mặc định, nên để rõ
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
+file:
+  upload-dir: uploads
+

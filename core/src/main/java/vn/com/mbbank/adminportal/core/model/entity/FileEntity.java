@@ -1,7 +1,9 @@
 package vn.com.mbbank.adminportal.core.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,9 +14,10 @@ import java.util.Date;
 @Accessors(chain = true)
 @Table(name = "FILE_ENTITY")
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class FileEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String fileName;
     private String fileUrl;
