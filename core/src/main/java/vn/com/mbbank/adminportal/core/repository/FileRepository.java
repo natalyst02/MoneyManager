@@ -11,4 +11,6 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     List<FileEntity> findByUserName(String username, PageRequest of);
 
     long countByUserName(String username);
+
+    FileEntity findByIdAndUserName(String id, String username);
 }

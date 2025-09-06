@@ -8,4 +8,6 @@ import java.util.concurrent.CompletableFuture;
 
 public interface FileService {
     CompletableFuture<FileResponse> getUserFile(Authentication authentication, Integer page, Integer pageSize);
+
+    CompletableFuture<FileEntity> getFile(String id);
 }

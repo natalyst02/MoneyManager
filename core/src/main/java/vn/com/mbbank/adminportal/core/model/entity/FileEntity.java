@@ -29,4 +29,5 @@ public class FileEntity {
     private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
+    private String contentType;
 }

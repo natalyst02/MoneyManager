@@ -27,4 +27,10 @@ public class FileServiceImpl implements FileService {
         var total = fileRepository.countByUserName(papUser.getUsername());
         return CompletableFuture.completedFuture(new FileResponse().setFiles(files).setTotal(total).setPage(page).setPageSize(pageSize));
     }
+
+    @Override
+    public CompletableFuture<FileEntity> getFile(String id) {
+        var papUser = Authentications.requirePapUser();
+        return CompletableFuture.completedFuture(fileRepository.findByIdAndUserName(id, papUser.getUsername()));
+    }
 }
