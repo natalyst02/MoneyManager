@@ -99,11 +99,8 @@ public class ProcessingFileJob {
         }
         file.setStatus(FileStatus.SENSITIVE.name());
         file.setFileInfo(Json.encodeToString(endRes));
+        file.setTextDetect(Json.encodeToString(endRes));
         fileService.save(file);
-        switch (file.getFileExtension()) {
-            case ".pdf" -> highlightPDF(file.getFileUrl(), "result/" + file.getFileUrl(), result);
-            case ".docx" -> highlightDOCX(file.getFileUrl(), "result/" + file.getFileUrl(), result);
-        }
     }
 
     public void highlightPDF(String inputPath, String outputPath, List<TextAnalysisDTO> highlights) {

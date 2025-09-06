@@ -30,4 +30,6 @@ public class FileEntity {
     @UpdateTimestamp
     private Date updatedAt;
     private String contentType;
+    private String textDetect;
+
 }
