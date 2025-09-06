@@ -16,6 +16,5 @@ public class ShareFileRequest {
     @Length(max = 20)
     private String username;
     @NotNull
-    @Length(max = 20)
     private HashSet<String> fileIds;
 }
