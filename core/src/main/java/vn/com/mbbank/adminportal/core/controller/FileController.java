@@ -68,6 +68,8 @@ public class FileController {
             FileEntity fileInfo = fileUploadService.uploadFile(authentication, file);
             return Response.ofSucceeded(fileInfo);
 
+        } catch (PaymentPlatformException e) {
+            throw e;
         } catch (IOException e) {
             throw new PaymentPlatformException(CommonErrorCode.INTERNAL_SERVER_ERROR,  "Lỗi upload file");
         }
@@ -78,7 +80,8 @@ public class FileController {
         try {
             FileEntity fileInfo = fileService.getFile(id).get();
             if (fileInfo == null) {
-                return ResponseEntity.notFound().build();
+                var papUser = Authentications.requirePapUser();
+                fileInfo = fileService.getFile(id, papUser.getUsername()).get();
             }
 
             Path filePath = Paths.get(fileInfo.getFileUrl());
@@ -94,6 +97,9 @@ public class FileController {
                 return ResponseEntity.notFound().build();
             }
 
+        }
+        catch (PaymentPlatformException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -134,6 +140,8 @@ public class FileController {
                 return ResponseEntity.notFound().build();
             }
 
+        } catch (PaymentPlatformException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
