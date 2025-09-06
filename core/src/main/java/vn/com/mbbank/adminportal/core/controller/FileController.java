@@ -21,6 +21,7 @@ import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
 import vn.com.mbbank.adminportal.common.model.response.Response;
 import vn.com.mbbank.adminportal.common.util.CommonErrorCode;
 import vn.com.mbbank.adminportal.core.model.entity.FileEntity;
+import vn.com.mbbank.adminportal.core.model.request.FileInput;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
 import vn.com.mbbank.adminportal.core.service.FileService;
 import vn.com.mbbank.adminportal.core.service.FileUploadService;
@@ -40,11 +41,16 @@ public class FileController {
     private final FileService fileService;
     private final FileUploadService fileUploadService;
 
+    @PostMapping("/search")
+    public CompletableFuture<Response<FileResponse>> getFileByUser(Authentication authentication,
+                                                                   @Valid @RequestBody FileInput fileInput) {
+        return fileService.getUserFile(authentication, fileInput).thenApply(Response::ofSucceeded);
+    }
+
     @GetMapping("")
     public CompletableFuture<Response<FileResponse>> getFileByUser(Authentication authentication,
-                                                                   @RequestParam(required = false, defaultValue = "1") Integer page,
-                                                                   @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
-        return fileService.getUserFile(authentication, page, pageSize).thenApply(Response::ofSucceeded);
+                                                                   @RequestParam(required = false, defaultValue = "1") Integer page,@RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        return fileService.getAllUserFile(authentication, page, pageSize).thenApply(Response::ofSucceeded);
     }
 
     @PostMapping("/upload")

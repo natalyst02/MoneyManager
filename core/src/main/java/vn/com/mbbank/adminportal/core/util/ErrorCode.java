@@ -221,6 +221,10 @@ public class ErrorCode implements CommonErrorCode {
       new BusinessErrorCode(5853, "Update blacklist account fail", HttpStatus.INTERNAL_SERVER_ERROR);
   public static final BusinessErrorCode UPDATE_SWITCHING_CONDITION_FAIL =
           new BusinessErrorCode(5854, "Update switching condition fail", HttpStatus.INTERNAL_SERVER_ERROR);
+  public static final BusinessErrorCode ANALAYZE_TEXT_ERROR =
+          new BusinessErrorCode(5855, "Analyze Text Error", HttpStatus.INTERNAL_SERVER_ERROR);
+
+
   private static final Map<String, BusinessErrorCode> errorCodeMap;
 
   static {

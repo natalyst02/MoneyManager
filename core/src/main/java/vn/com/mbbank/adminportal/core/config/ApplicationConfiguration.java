@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import vn.com.mbbank.adminportal.common.mapper.Entity2ErrorMessageResponseMapper;
 import vn.com.mbbank.adminportal.common.util.RequestLoggingFilter;
 import vn.com.mbbank.adminportal.common.util.RestClient;
+import vn.com.mbbank.adminportal.core.thirdparty.presidio.PresidioClient;
+import vn.com.mbbank.adminportal.core.thirdparty.presidio.impl.PresidioClientImpl;
 import vn.com.mbbank.adminportal.core.thirdparty.routingtransfer.RoutingTransferClient;
 import vn.com.mbbank.adminportal.core.thirdparty.routingtransfer.impl.RoutingTransferClientImpl;
 
@@ -44,5 +46,12 @@ public class ApplicationConfiguration {
                                                      @Value("${routing-transfer.client-secret}") String clientSecret,
                                                      @Value("${routing-transfer.url}") String url) {
     return new RoutingTransferClientImpl(restClient, oauthUrl, clientId, clientSecret, url);
+  }
+
+
+  @Bean
+  public PresidioClient presidioClient(RestClient restClient,
+                                       @Value("${presidioClient.url}") String url) {
+    return new PresidioClientImpl(restClient, url);
   }
 }

@@ -5,7 +5,7 @@ logging.level.vn.com.mbbank.adminportal.common.util.RequestLoggingFilter: DEBUG
 logging:
   config: config/log4j2.xml
 server:
-  port: 8888
+  port: 8887
   max-http-request-header-size: 90000
   servlet:
     context-path: /admin-portal/v1
@@ -240,3 +240,4 @@ jasypt:
 file:
   upload-dir: uploads
 
+presidioClient.url: http://localhost:5002
