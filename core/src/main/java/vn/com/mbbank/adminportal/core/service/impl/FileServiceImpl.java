@@ -84,8 +84,9 @@ public class FileServiceImpl implements FileService {
             throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Dữ liệu file không hợp lệ", HttpStatus.INTERNAL_SERVER_ERROR), null);
 
         }
-
+        log.info("0");
         List<FileEntity> fileEntities = fileRepository.findByIdInAndUserName(shareFileRequest.getFileIds(), papUser.getUsername());
+        log.info("1");
 
         if (fileEntities == null ||
         fileEntities.size() != shareFileRequest.getFileIds().size()) {
@@ -101,7 +102,7 @@ public class FileServiceImpl implements FileService {
             throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Bạn không có quyền truy cập vào file", HttpStatus.INTERNAL_SERVER_ERROR), null);
 
         }
-
+        log.info("2");
         List<FileShareEntity> fileShareEntities = new ArrayList<>();
         for (String fileId : shareFileRequest.getFileIds()) {
             fileShareEntities.add(new FileShareEntity(
@@ -113,7 +114,9 @@ public class FileServiceImpl implements FileService {
                     new Date()
             ));
         }
-        fileShareRepository.saveAll(fileShareEntities);
+        log.info("3");
+        fileShareRepository.persistAll(fileShareEntities);
+        log.info("4");
         return CompletableFuture.completedFuture(null);
     }
 
