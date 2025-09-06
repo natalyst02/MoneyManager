@@ -52,10 +52,10 @@ public class PresidioClientImpl implements PresidioClient {
                         var response = Json.decode(httpResponse.body(), analyzeTextRespReader, e ->
                                 new NSTCompletionException(new PaymentPlatformException(ErrorCode.ANALAYZE_TEXT_ERROR,
                                         "Can not get analyzeTextResp due: " + new String(httpResponse.body(), StandardCharsets.UTF_8))));
-                        if (!response.isEmpty()) {
+//                        if (!response.isEmpty()) {
                             return response;
-                        }
-                        throw new NSTCompletionException(new PaymentPlatformException(ErrorCode.ANALAYZE_TEXT_ERROR, ErrorCode.ANALAYZE_TEXT_ERROR.message()));
+//                        }
+//                        throw new NSTCompletionException(new PaymentPlatformException(ErrorCode.ANALAYZE_TEXT_ERROR, ErrorCode.ANALAYZE_TEXT_ERROR.message()));
                     }
                     throw new NSTCompletionException(new PaymentPlatformException(ErrorCode.ANALAYZE_TEXT_ERROR, "Can not get user info due: " + new String(httpResponse.body(), StandardCharsets.UTF_8)));
                 });

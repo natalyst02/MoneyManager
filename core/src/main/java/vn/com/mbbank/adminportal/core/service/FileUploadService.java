@@ -71,7 +71,8 @@ public class FileUploadService {
                 papUser.getUsername(),
                 new Date(),
                 new Date(),
-                file.getContentType()
+                file.getContentType(),
+                null
         );
 
         return fileRepository.save(fileInfo);
