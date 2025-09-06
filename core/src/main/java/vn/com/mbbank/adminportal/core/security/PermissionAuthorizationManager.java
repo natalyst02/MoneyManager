@@ -46,6 +46,8 @@ public class PermissionAuthorizationManager {
         .requestMatchers(POST, "/roles**").access(hasPermission("role", BitmaskValue.INSERT))
         .requestMatchers(PUT, "/roles**").access(hasPermission("role", BitmaskValue.UPDATE))
         .requestMatchers(GET, "/permissions**").access(hasPermission("permission", BitmaskValue.VIEW))
+                    .anyRequest().authenticated()
+//            .requestMatchers(GET, "/user/permissions**").access(hasPermission("permission", BitmaskValue.VIEW))
     );
   }
 }
