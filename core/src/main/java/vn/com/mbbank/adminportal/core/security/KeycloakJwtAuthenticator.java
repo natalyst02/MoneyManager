@@ -39,7 +39,11 @@ public class KeycloakJwtAuthenticator implements JwtAuthenticator {
 
   @Override
   public Authentication authenticate(String token) {
-    token = token.split(" ")[1];
+
+    if (token.split(" ").length > 1){token = token.split(" ")[1];}
+    else {
+        token = token.split(" ")[0];
+    }
     if(jwtUtil.validateToken(token)) {
       String username = jwtUtil.extractUsername(token);
       PapUser papUser;
