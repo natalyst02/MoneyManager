@@ -8,9 +8,9 @@ import vn.com.mbbank.adminportal.core.model.entity.FileShareEntity;
 import java.util.List;
 
 public interface FileShareRepository extends JpaRepository<FileShareEntity, String> {
-    List<FileShareEntity> findByUserNameOrderByCreateDate(String username, PageRequest of);
+    List<FileShareEntity> findByUsernameOrderByCreateDate(String username, PageRequest of);
 
-    long countByUserName(String username);
+    long countByUsername(String username);
 
     FileShareEntity findByUsernameAndFileId(String username, String fileId);
 

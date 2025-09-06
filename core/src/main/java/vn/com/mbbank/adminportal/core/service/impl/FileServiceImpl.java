@@ -81,8 +81,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public CompletableFuture<FileResponse> getShareUserFile(Authentication authentication, Integer page, Integer pageSize) {
         var papUser = Authentications.requirePapUser();
-        var fileShare = fileShareRepository.findByUserNameOrderByCreateDate(papUser.getUsername(), PageRequest.of(page, pageSize));
-        var total = fileShareRepository.countByUserName(papUser.getUsername());
+        var fileShare = fileShareRepository.findByUsernameOrderByCreateDate(papUser.getUsername(), PageRequest.of(page, pageSize));
+        var total = fileShareRepository.countByUsername(papUser.getUsername());
         Set<String> ids = fileShare.stream().map(FileShareEntity::getFileId).collect(Collectors.toSet());
         List<FileEntity> fileEntities = fileRepository.findByIdIn(ids);
         return CompletableFuture.completedFuture(new FileResponse().setFiles(fileEntities).setTotal(total).setPage(page).setPageSize(pageSize));
