@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-@Table(name = "FILE_SHARE_ENTITY")
+@Table(name = "FILE_SHARE")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +28,6 @@ public class FileShareEntity {
     @CreationTimestamp
     private Date createDate;
     @UpdateTimestamp
-    private Date uploadDate;
+    private Date updateDate;
 
 }
