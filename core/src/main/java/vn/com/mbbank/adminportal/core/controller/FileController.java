@@ -99,7 +99,7 @@ public class FileController {
         }
     }
 
-    @GetMapping("/share")
+    @PostMapping("/share")
     public Response<Void> shareFile(@Valid @RequestBody ShareFileRequest shareFileRequest) throws ExecutionException, InterruptedException {
         return Response.ofSucceeded(fileService.shareFile(shareFileRequest).get());
     }
