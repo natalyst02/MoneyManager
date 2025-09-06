@@ -21,16 +21,22 @@ import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
 import vn.com.mbbank.adminportal.common.model.response.Response;
 import vn.com.mbbank.adminportal.common.util.CommonErrorCode;
 import vn.com.mbbank.adminportal.core.model.entity.FileEntity;
+import vn.com.mbbank.adminportal.core.model.entity.FileLog;
+import vn.com.mbbank.adminportal.core.model.request.ShareFileRequest;
 import vn.com.mbbank.adminportal.core.model.request.FileInput;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
 import vn.com.mbbank.adminportal.core.service.FileService;
 import vn.com.mbbank.adminportal.core.service.FileUploadService;
 import vn.com.mbbank.adminportal.core.thirdparty.hcm.model.GetHcmUserInfoResponse;
+import vn.com.mbbank.adminportal.core.util.Authentications;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Log4j2
 @RestController
@@ -40,6 +46,7 @@ import java.util.concurrent.CompletableFuture;
 public class FileController {
     private final FileService fileService;
     private final FileUploadService fileUploadService;
+    private final FileLogRepository fileLogRepository;
 
     @PostMapping("/search")
     public CompletableFuture<Response<FileResponse>> getFileByUser(Authentication authentication,
@@ -71,6 +78,8 @@ public class FileController {
             FileEntity fileInfo = fileUploadService.uploadFile(authentication, file);
             return Response.ofSucceeded(fileInfo);
 
+        } catch (PaymentPlatformException e) {
+            throw e;
         } catch (IOException e) {
             throw new PaymentPlatformException(CommonErrorCode.INTERNAL_SERVER_ERROR,  "Lỗi upload file");
         }
@@ -79,7 +88,62 @@ public class FileController {
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String id) {
         try {
+            var papUser = Authentications.requirePapUser();
             FileEntity fileInfo = fileService.getFile(id).get();
+            if (fileInfo == null) {
+                fileInfo = fileService.getFile(id, papUser.getUsername()).get();
+            }
+            if (fileInfo == null) {
+                FileLog fileLog = new FileLog(
+                        UUID.randomUUID().toString(),
+                        new Date(),
+                        papUser.getUsername(),
+                        "DOWNLOAD_FILE",
+                        id
+                );
+
+                fileLogRepository.save(fileLog);
+                throw new PaymentPlatformException(new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "Bạn không có quyền truy cập vào file", HttpStatus.INTERNAL_SERVER_ERROR), null);
+            }
+            Path filePath = Paths.get(fileInfo.getFileUrl());
+            org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(fileInfo.getContentType()))
+                        .header(HttpHeaders.CONTENT_DISPOSITION,
+                                "attachment; filename=\"" + fileInfo.getFileName() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+
+        }
+        catch (PaymentPlatformException e) {
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/share")
+    public Response<Void> shareFile(@Valid @RequestBody ShareFileRequest shareFileRequest) throws ExecutionException, InterruptedException {
+        return Response.ofSucceeded(fileService.shareFile(shareFileRequest).get());
+    }
+
+
+    @GetMapping("/share_file")
+    public CompletableFuture<Response<FileResponse>> getFileByShareUser(Authentication authentication,
+                                                                   @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                                   @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+        return fileService.getShareUserFile(authentication, page, pageSize).thenApply(Response::ofSucceeded);
+    }
+
+    @GetMapping("/download/share/{id}")
+    public ResponseEntity<Resource> downloadShareFile(@PathVariable String id) {
+        try {
+            var papUser = Authentications.requirePapUser();
+            FileEntity fileInfo = fileService.getFile(id, papUser.getUsername()).get();
             if (fileInfo == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -97,6 +161,8 @@ public class FileController {
                 return ResponseEntity.notFound().build();
             }
 
+        } catch (PaymentPlatformException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

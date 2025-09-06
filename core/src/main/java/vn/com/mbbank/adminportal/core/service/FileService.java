@@ -4,10 +4,12 @@ import org.springframework.security.core.Authentication;
 import vn.com.mbbank.adminportal.core.model.FileStatus;
 import vn.com.mbbank.adminportal.core.model.entity.FileEntity;
 import vn.com.mbbank.adminportal.core.model.request.FileInput;
+import vn.com.mbbank.adminportal.core.model.request.ShareFileRequest;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public interface FileService {
 
@@ -17,4 +19,11 @@ public interface FileService {
     List<FileEntity> getFilesByStatus(int batchSize,  FileStatus status);
 
     void save(FileEntity file);
+
+    CompletableFuture<Void> shareFile(ShareFileRequest shareFileRequest
+                                      );
+
+    CompletableFuture<FileResponse> getShareUserFile(Authentication authentication, Integer page, Integer pageSize);
+
+    CompletableFuture<FileEntity> getFile(String id, String userName);
 }

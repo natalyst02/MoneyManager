@@ -25,7 +25,11 @@ springdoc:
     oauth:
       client-id: pap-service
       client-secret: onK7PMkr2mvD2xf8pt74EJ7NtfI1Fe3K
-
+servlet:
+  multipart:
+    max-file-size: 10MB
+    max-request-size: 10MB
+    enabled: true
 spring:
   application:
     name: admin-portal
