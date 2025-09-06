@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-@Table(name = "FILE_ENTITY")
+@Table(name = "FILE_LOG")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
