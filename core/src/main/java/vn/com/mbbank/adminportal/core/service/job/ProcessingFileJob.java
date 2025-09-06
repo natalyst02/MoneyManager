@@ -100,10 +100,9 @@ public class ProcessingFileJob {
         file.setStatus(FileStatus.SENSITIVE.name());
         file.setFileInfo(Json.encodeToString(endRes));
         fileService.save(file);
-        Path resultPath = Paths.get("/result/" + file.getFileUrl());
         switch (file.getFileExtension()) {
-            case ".pdf" -> highlightPDF(file.getFileUrl(), "/result/" + file.getFileUrl(), result);
-            case ".docx" -> highlightDOCX(file.getFileUrl(), "/result/" + file.getFileUrl(), result);
+            case ".pdf" -> highlightPDF(file.getFileUrl(), "result/" + file.getFileUrl(), result);
+            case ".docx" -> highlightDOCX(file.getFileUrl(), "result/" + file.getFileUrl(), result);
         }
     }
 
