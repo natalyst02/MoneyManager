@@ -25,6 +25,7 @@ import vn.com.mbbank.adminportal.core.model.entity.FileLog;
 import vn.com.mbbank.adminportal.core.model.request.ShareFileRequest;
 import vn.com.mbbank.adminportal.core.model.request.FileInput;
 import vn.com.mbbank.adminportal.core.model.response.FileResponse;
+import vn.com.mbbank.adminportal.core.repository.FileLogRepository;
 import vn.com.mbbank.adminportal.core.service.FileService;
 import vn.com.mbbank.adminportal.core.service.FileUploadService;
 import vn.com.mbbank.adminportal.core.thirdparty.hcm.model.GetHcmUserInfoResponse;
