@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import vn.com.mbbank.adminportal.common.exception.BusinessErrorCode;
 import vn.com.mbbank.adminportal.common.exception.PartialDataException;
 import vn.com.mbbank.adminportal.common.exception.PaymentPlatformException;
@@ -62,6 +63,11 @@ public class ExceptionController {
   @ExceptionHandler(Exception.class)
   protected void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
     handle(e, CommonErrorCode.INTERNAL_SERVER_ERROR, request, response);
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  protected void handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    handle(e, new BusinessErrorCode(CommonErrorCode.INTERNAL_SERVER_ERROR.code(),  "File không được vượt quá 10MB", HttpStatus.INTERNAL_SERVER_ERROR), null, request, response);
   }
 
   @ExceptionHandler(PartialDataException.class)
